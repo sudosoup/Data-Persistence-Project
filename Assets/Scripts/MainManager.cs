@@ -1,5 +1,7 @@
+using NUnit.Framework.Internal;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +13,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,7 +21,7 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +39,10 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        DataManager.Instance.LoadScore();
+        HighScoreText.text = "Best Score : " + DataManager.Instance.PlayerHighScoreName + " : " + DataManager.Instance.HighScore;
+        Debug.Log("Player: " + DataManager.Instance.PlayerHighScoreName + " Score: " + DataManager.Instance.HighScore);
     }
 
     private void Update()
@@ -68,9 +75,22 @@ public class MainManager : MonoBehaviour
         ScoreText.text = $"Score : {m_Points}";
     }
 
+
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        // When game ends check current highscore,
+        // if null or higher update otherwise do nothing?
+
+        
+        if (m_Points > DataManager.Instance.HighScore)
+        {
+            DataManager.Instance.HighScore = m_Points;
+            DataManager.Instance.SaveScore();
+        }
+
     }
+
 }
